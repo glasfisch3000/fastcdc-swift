@@ -31,7 +31,7 @@ public struct FastCDCSequence: Sequence, IteratorProtocol {
 }
 
 extension Data {
-    public func fastCDC(min: Int, avg: Int, max: Int) -> some Sequence {
+    public func fastCDC(min: Int, avg: Int, max: Int) -> FastCDCSequence {
         FastCDCSequence(data: self, minSize: min, avgSize: avg, maxSize: max)
     }
 }
