@@ -17,20 +17,18 @@ public func fastCDCSplit(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int,
     print("  len: \(data[offset...])")
     print("  min: \(minSize)")
     print("  max: \(length)")
-    print("  \(data[offset+minSize ..< offset+length])")
     
     var hash: UInt = 0
-    var i = offset+minSize
     
-    for byte in data[offset+minSize ..< offset+length] {
-        i += 1
+    for i in minSize..<length {
+        let byte = data[offset+i]
         
         hash <<= 1
         hash += table[Int(byte)]
-        print("  byte \(i-1) -> \(String(format: "%016x", hash)) (\(String(format: "%016x", i<avgSize ? maskS : maskL)))")
+        print("  byte \(offset+i) -> \(String(format: "%016x", hash)) (\(String(format: "%016x", i<avgSize ? maskS : maskL)))")
         
-        if hash & (i<avgSize ? maskS : maskL) == 0 { return .split(i) }
+        if hash & (i<avgSize ? maskS : maskL) == 0 { return .split(offset+i+1) }
     }
     
-    return .notFound(i)
+    return .notFound(offset+length)
 }
