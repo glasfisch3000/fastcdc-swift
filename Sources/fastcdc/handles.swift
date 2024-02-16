@@ -18,18 +18,23 @@ public struct FastCDCSequence: Sequence, IteratorProtocol {
     }
     
     public mutating func next() -> Element? {
+        print("iterator called (index: \(index), data: \(data.count))")
         guard self.index < self.data.count else { return nil }
         
         let subdata = self.data[self.index...]
         
+        print("calling fastCDC")
         switch fastCDCSplit(subdata, minSize: self.minSize, avgSize: self.avgSize, maxSize: self.maxSize) {
         case .tooSmall:
+            print("chunk too small")
             self.index += subdata.count
             return subdata
         case .split(let breakpoint):
+            print("chunk split at \(breakpoint) (\(index+breakpoint))")
             self.index += breakpoint
             return subdata[..<breakpoint]
         case .notFound(let length):
+            print("no match found; chunk split at \(length) (\(index+length))")
             self.index += length
             return subdata[..<length]
         }
