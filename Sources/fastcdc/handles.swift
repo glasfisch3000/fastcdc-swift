@@ -25,11 +25,11 @@ public struct FastCDCSequence: Sequence, IteratorProtocol {
             defer { index = data.count }
             return data[index...]
         case .split(let breakpoint):
-            defer { index += breakpoint }
+            defer { index = breakpoint }
             return data[index..<breakpoint]
-        case .notFound(let length):
-            defer { self.index += length }
-            return data[index..<length]
+        case .notFound(let breakpoint):
+            defer { self.index = breakpoint }
+            return data[index..<breakpoint]
         }
     }
 }
