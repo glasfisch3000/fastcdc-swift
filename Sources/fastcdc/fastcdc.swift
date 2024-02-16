@@ -20,12 +20,12 @@ public func fastCDCSplit(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int)
     var i = minSize
     
     for byte in data[minSize..<length] {
+        i += 1
+        
         hash >>= 1
-        hash += UInt(byte)
+        hash += table[Int(byte)]
         
         if hash & (i>center ? maskL : maskS) == 0 { return .split(i) }
-        
-        i += 1
     }
     
     return .notFound(length)
