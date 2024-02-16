@@ -1,6 +1,6 @@
 import Foundation
 
-public struct FastCDCIterator: IteratorProtocol {
+public struct FastCDCSequence: Sequence, IteratorProtocol {
     public typealias Element = Data
     
     public var data: Data
@@ -31,7 +31,7 @@ public struct FastCDCIterator: IteratorProtocol {
 }
 
 extension Data {
-    public func fastCDC(min: Int, avg: Int, max: Int) -> FastCDCIterator {
-        FastCDCIterator(data: self, minSize: min, avgSize: avg, maxSize: max)
+    public func fastCDC(min: Int, avg: Int, max: Int) -> some Sequence {
+        FastCDCSequence(data: self, minSize: min, avgSize: avg, maxSize: max)
     }
 }
