@@ -6,7 +6,7 @@ public enum SplitResult {
     case notFound(_ searchLength: Int)
 }
 
-public func fastCDC(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int) -> SplitResult {
+public func fastCDCSplit(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int) -> SplitResult {
     let length = data.count.bounds(...maxSize)
     guard length > minSize else { return .tooSmall }
     
