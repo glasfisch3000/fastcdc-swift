@@ -17,6 +17,7 @@ public func fastCDCSplit(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int)
     print("  len: \(data)")
     print("  min: \(minSize)")
     print("  max: \(length)")
+    print("  \(data[minSize..<length])")
     
     var hash: UInt = 0
     var i = minSize
