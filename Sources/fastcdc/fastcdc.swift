@@ -14,12 +14,8 @@ public func fastCDCSplit(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int)
     let maskS: UInt = (1 << (log-2)) - 1
     let maskL: UInt = (1 << (log+2)) - 1
     
-    print("  \(maskS)")
-    print("  \(maskL)")
-    
-    print("  min: \(minSize)")
-    print("  avg: \(avgSize)")
-    print("  max: \(maxSize)")
+    print("  \(data)")
+    print("  \(data.count)")
     
     var hash: UInt = 0
     var i = minSize
