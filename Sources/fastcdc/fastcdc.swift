@@ -19,7 +19,7 @@ public func fastCDCSplit(_ data: Data, minSize: Int, avgSize: Int, maxSize: Int)
     var hash: UInt = 0
     var i = minSize
     
-    for byte in data[minSize...] {
+    for byte in data[minSize..<length] {
         hash >>= 1
         hash += UInt(byte)
         
