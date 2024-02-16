@@ -17,15 +17,21 @@ public struct FastCDCSequence: Sequence, IteratorProtocol {
         self.maxSize = maxSize
     }
     
-    public func next() -> Element? {
+    public mutating func next() -> Element? {
         guard self.index < self.data.count else { return nil }
         
         let subdata = self.data[self.index...]
         
         switch fastCDCSplit(subdata, minSize: self.minSize, avgSize: self.avgSize, maxSize: self.maxSize) {
-        case .tooSmall: return subdata
-        case .split(let breakpoint): return subdata[..<breakpoint]
-        case .notFound(let length): return subdata[..<length]
+        case .tooSmall:
+            self.index += subdata.count
+            return subdata
+        case .split(let breakpoint):
+            self.index += breakpoint
+            return subdata[..<breakpoint]
+        case .notFound(let length):
+            self.index += length
+            return subdata[..<length]
         }
     }
 }
