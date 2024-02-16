@@ -7,13 +7,13 @@ let package = Package(
     name: "fastcdc",
     products: [
         .library(
-            name: "fastcdc",
-            targets: ["fastcdc"]
+            name: "FastCDC",
+            targets: ["FastCDC"]
         ),
     ],
     targets: [
         .target(
-            name: "fastcdc"
+            name: "FastCDC"
         )
     ]
 )
