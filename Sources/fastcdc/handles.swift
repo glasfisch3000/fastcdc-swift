@@ -19,24 +19,22 @@ public struct FastCDCSequence: Sequence, IteratorProtocol {
     
     public mutating func next() -> Element? {
         print("iterator called (index: \(index), data: \(data.count))")
-        guard self.index < self.data.count else { return nil }
-        
-        let subdata = self.data[self.index...]
+        guard index < data.count else { return nil }
         
         print("calling fastCDC")
-        switch fastCDCSplit(subdata, minSize: self.minSize, avgSize: self.avgSize, maxSize: self.maxSize) {
+        switch fastCDCSplit(data, minSize: minSize, avgSize: avgSize, maxSize: maxSize, offset: index) {
         case .tooSmall:
             print("chunk too small")
-            self.index += subdata.count
-            return subdata
+            defer { index = data.count }
+            return data[index...]
         case .split(let breakpoint):
-            print("chunk split at \(breakpoint) (\(index+breakpoint))")
-            self.index += breakpoint
-            return subdata[..<breakpoint]
+            print("chunk split at \(breakpoint)")
+            defer { index += breakpoint }
+            return data[index..<breakpoint]
         case .notFound(let length):
-            print("no match found; chunk split at \(length) (\(index+length))")
-            self.index += length
-            return subdata[..<length]
+            print("no match found; chunk split at \(length)")
+            defer { self.index += length }
+            return data[index..<length]
         }
     }
 }
