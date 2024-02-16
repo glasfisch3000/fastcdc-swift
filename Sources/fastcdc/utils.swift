@@ -1,7 +1,3 @@
-func mask(_ bits: Int) -> UInt {
-    (1 << bits.bounds(1...31)) - 1
-}
-
 extension Int {
     func bounds(_ bounds: ClosedRange<Self>) -> Self {
         Swift.min(bounds.upperBound, Swift.max(bounds.lowerBound, self))
