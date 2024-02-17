@@ -1,65 +1,35 @@
 import Foundation
 
-public enum SplitResult {
+public enum FastCDCSplitResult {
     case tooSmall
     case split(_ breakpoint: Int)
-    case notFound(_ searchLength: Int)
+    case notFound(_ searchLength: Int, lastHash: UInt)
 }
 
-public func fastCDCSplit<Source: CDCSource>(_ source: Source, minSize: Int, avgSize: Int, maxSize: Int, offset: Int = 0) -> SplitResult {
-    let length = (source.count-offset).bounds(...maxSize)
-    guard length > minSize else { return .tooSmall }
-    
-    let log = UInt(avgSize.bitWidth - avgSize.leadingZeroBitCount)
-    let maskS: UInt = (1 << (log-2)) - 1
-    let maskL: UInt = (1 << (log+2)) - 1
-    
-    var hash: UInt = 0
-    var i = offset+minSize
-    
-    for byte in source.makeSubsequence(from: offset+minSize, length: length) {
-        i += 1
+extension FastCDCSource {
+    public func fastCDCSplit(minBytes: Int, avgBytes: Int, maxBytes: Int, offset: Int = 0, seed: UInt = 0) -> FastCDCSplitResult {
+        let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
+        let maskS: UInt = (1 << (log-2)) - 1
+        let maskL: UInt = (1 << (log+2)) - 1
         
-        hash <<= 1
-        hash += table[Int(byte)]
+        var hash: UInt = seed
         
-        if hash & (i-1 < avgSize ? maskS : maskL) == 0 { return .split(offset+i) }
-    }
-    
-    return .notFound(offset+i)
-}
-
-public enum SequentialSplitResult<Source: CDCSource> {
-    case tooSmall
-    case found(_ processed: [Source])
-    case notFound(_ processed: [Source])
-}
-
-public func fastCDCSplit<Source: CDCSource>(_ sources: [Source], minSize: Int, avgSize: Int, maxSize: Int) -> SequentialSplitResult<Source> {
-    let log = UInt(avgSize.bitWidth - avgSize.leadingZeroBitCount)
-    let maskS: UInt = (1 << (log-2)) - 1
-    let maskL: UInt = (1 << (log+2)) - 1
-    
-    var hash: UInt = 0
-    
-    var processed: [Source] = []
-    var count = 0
-    
-    for source in sources {
-        guard count >= minSize else { continue }
-        guard count + source.count <= maxSize else { break }
+        var index = 0
+        var bytes = 0
         
-        for byte in source.makeSubsequence(from: 0, length: source.count) {
-            hash <<= 1
-            hash += table[Int(byte)]
+        for element in self.makeSubsequence(from: offset) {
+            guard bytes >= minBytes else { continue }
+            guard bytes + element.count <= maxBytes else { break }
             
-            if hash & (count < avgSize ? maskS : maskL) == 0 { return .found(processed) }
+            let mask = bytes < avgBytes ? maskS : maskL
             
-            count += 1
+            element.fastCDCHash(&hash, mask: mask)
+            if hash & mask == 0 { return .split(index+1) }
+            
+            index += 1
+            bytes += element.count
         }
         
-        processed.append(source)
+        return bytes >= minBytes ? .notFound(index, lastHash: hash) : .tooSmall
     }
-    
-    return .notFound(processed)
 }
