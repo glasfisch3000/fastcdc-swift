@@ -28,3 +28,9 @@ struct FastCDCSequence<Source: FastCDCSource>: Sequence, IteratorProtocol {
         }
     }
 }
+
+extension FastCDCSource {
+    public func fastCDCSequence(minBytes: Int, avgBytes: Int, maxBytes: Int) -> some Sequence {
+        FastCDCSequence(source: self, minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes)
+    }
+}
