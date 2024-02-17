@@ -17,7 +17,7 @@ public func fastCDCSplit<Source: CDCSource>(_ source: Source, minSize: Int, avgS
     var hash: UInt = 0
     var i = offset+minSize
     
-    for byte in source.makeSubsequence(from: minSize, length: length) {
+    for byte in source.makeSubsequence(from: offset+minSize, length: length) {
         i += 1
         
         hash <<= 1
