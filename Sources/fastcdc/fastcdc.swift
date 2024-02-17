@@ -19,7 +19,7 @@ extension FastCDCSource {
         
         for element in self.makeSubsequence(from: offset) {
             guard bytes >= minBytes else { continue }
-            guard bytes + element.count <= maxBytes else { break }
+            guard bytes + element.byteCount <= maxBytes else { break }
             
             let mask = bytes < avgBytes ? maskS : maskL
             
@@ -27,7 +27,7 @@ extension FastCDCSource {
             if hash & mask == 0 { return .split(index+1) }
             
             index += 1
-            bytes += element.count
+            bytes += element.byteCount
         }
         
         return bytes >= minBytes ? .notFound(index, lastHash: hash) : .tooSmall

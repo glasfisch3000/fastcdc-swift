@@ -1,7 +1,7 @@
 import Foundation
 
 extension UInt8: FastCDCElement {
-    public var count: Int { 1 }
+    public var byteCount: Int { 1 }
     
     public func fastCDCHash(_ hash: inout UInt, mask: UInt) {
         hash <<= 1
@@ -36,6 +36,8 @@ extension Data: FastCDCSource {
 }
 
 extension Data: FastCDCElement {
+    public var byteCount: Int { self.count }
+    
     public func fastCDCHash(_ hash: inout UInt, mask: UInt) {
         for byte in self {
             hash <<= 1

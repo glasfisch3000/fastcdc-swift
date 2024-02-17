@@ -10,7 +10,7 @@ public protocol FastCDCSource {
 }
 
 public protocol FastCDCElement {
-    var count: Int { get }
+    var byteCount: Int { get }
     
     func fastCDCHash(_ hash: inout UInt, mask: UInt)
 }
