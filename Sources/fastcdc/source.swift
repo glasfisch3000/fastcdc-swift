@@ -23,8 +23,6 @@ extension Data: CDCSource {
             self.length = length
         }
         
-        public func makeIterator() -> Self { self }
-        
         public mutating func next() -> Element? {
             guard offset+index < length.bounds(...data.count) else { return nil }
             
