@@ -22,7 +22,7 @@ extension FastCDCSource {
             defer { bytes += element.byteCount }
             
             guard bytes >= minBytes else { continue }
-            guard bytes + element.byteCount <= maxBytes else { break }
+            guard bytes + element.byteCount < maxBytes else { break }
             
             let mask = bytes < avgBytes ? maskS : maskL
             
