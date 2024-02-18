@@ -10,7 +10,7 @@ extension UInt8: FastCDCElement {
 }
 
 extension Data: FastCDCSource {
-    public struct OffsetSequence: Sequence, IteratorProtocol {
+    public class OffsetSequence: Sequence, IteratorProtocol {
         public typealias Element = Data.Element
         
         public var data: Data
@@ -22,7 +22,7 @@ extension Data: FastCDCSource {
             self.offset = offset
         }
         
-        public mutating func next() -> Element? {
+        public func next() -> Element? {
             print("\(self).next()", terminator: "")
             defer { print() }
             
