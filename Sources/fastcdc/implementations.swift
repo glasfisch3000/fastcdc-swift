@@ -13,12 +13,12 @@ extension Data: FastCDCSource {
     public class OffsetSequence: Sequence, IteratorProtocol {
         public typealias Element = Data.Element
         
-        public var data: Data
+        public var data: [UInt8]
         public var offset: Int
         public var index: Int = 0
         
         init(data: Data, offset: Int) {
-            self.data = data
+            self.data = data.map { $0 }
             self.offset = offset
         }
         
