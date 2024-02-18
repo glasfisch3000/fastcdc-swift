@@ -18,7 +18,6 @@ extension FastCDCSource {
         var bytes = 0
         
         for element in self.makeSubsequence(from: offset) {
-            defer { print() }
             defer { index += 1 }
             defer { bytes += element.byteCount }
             
