@@ -28,9 +28,10 @@ extension Data: FastCDCSource {
             
             guard offset+index < data.count else { print(" -> end", terminator: ""); return nil }
             
-            defer { index += 1 }
-            print(" -> \(data[offset+index])", terminator: "")
-            return data[offset+index]
+            let value = data[offset+index]
+            index += 1
+            print(" -> \(value)", terminator: "")
+            return value
         }
     }
     
