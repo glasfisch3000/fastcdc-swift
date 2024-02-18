@@ -88,4 +88,6 @@ extension FastCDCView where Source.Index == Int, Source.OffsetSequence.SubSequen
             return subset
         }
     }
+    
+    public var slices: Slices { Slices(view: self, index: source.startIndex) }
 }
