@@ -23,6 +23,7 @@ extension Data: FastCDCSource {
         }
         
         public mutating func next() -> Element? {
+            print("\(self).next()")
             guard offset+index < data.count else { return nil }
             
             defer { index += 1 }
@@ -31,7 +32,8 @@ extension Data: FastCDCSource {
     }
     
     public func makeSubsequence(from offset: Int) -> OffsetSequence {
-        OffsetSequence(data: self, offset: offset)
+        print("Data.makeSubsequence(from: \(offset))")
+        return OffsetSequence(data: self, offset: offset)
     }
 }
 
