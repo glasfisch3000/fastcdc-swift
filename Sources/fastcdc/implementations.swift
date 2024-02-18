@@ -23,10 +23,13 @@ extension Data: FastCDCSource {
         }
         
         public mutating func next() -> Element? {
-            print("\(self).next()")
-            guard offset+index < data.count else { return nil }
+            print("\(self).next()", terminator: "")
+            defer { print() }
+            
+            guard offset+index < data.count else { print(" -> end", terminator: ""); return nil }
             
             defer { index += 1 }
+            print(" -> data[offset+index]", terminator: "")
             return data[offset+index]
         }
     }
