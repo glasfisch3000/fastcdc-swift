@@ -14,7 +14,7 @@ extension FastCDCSource {
         
         var hash: UInt = seed
         
-        var index = 0
+        var index = offset
         var bytes = 0
         
         for element in self.makeSubsequence(from: offset) {
@@ -24,6 +24,7 @@ extension FastCDCSource {
             let mask = bytes < avgBytes ? maskS : maskL
             
             element.fastCDCHash(&hash, mask: mask)
+            print("fastCDC \(self): index \(index) bytes \(bytes) -> \(String(format: "%016x", hash)) & \(String(format: "%016x", mask)) \(hash & mask == 0 ? "==" : "!=") 0")
             if hash & mask == 0 { return .split(index+1) }
             
             index += 1
