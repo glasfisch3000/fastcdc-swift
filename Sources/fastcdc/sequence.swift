@@ -25,6 +25,7 @@ extension FastCDCView {
         }
         
         public mutating func next() async throws -> Element? {
+            await view.source.load(to: index)
             guard index < view.source.endIndex else { return nil }
             
             switch try await view.source[index...].fastCDCNextBreakpoint(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes) {
@@ -58,6 +59,7 @@ extension FastCDCView where Source.Index == Int {
         }
         
         public mutating func next() async throws -> Element? {
+            await view.source.load(to: index)
             guard index < view.source.endIndex else { return nil }
             
             let subset = try await view.source[index...].fastCDCNextList(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
@@ -81,6 +83,7 @@ extension FastCDCView where Source.Index == Int, Source.OffsetSequence.SubSequen
         }
         
         public mutating func next() async throws -> Element? {
+            await view.source.load(to: index)
             guard index < view.source.endIndex else { return nil }
             
             let subset = try await view.source[index...].fastCDCNextSlice(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
