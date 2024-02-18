@@ -1,7 +1,7 @@
 import Foundation
 
 public protocol FastCDCSource {
-    associatedtype OffsetSequence: Sequence where OffsetSequence.Element == Element
+    associatedtype OffsetSequence: AsyncSequence where OffsetSequence.Element == Element
     associatedtype Element: FastCDCElement
     
     var count: Int { get }

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct FastCDCSequence<Source: FastCDCSource>: Sequence, IteratorProtocol {
+public struct FastCDCSequence<Source: FastCDCSource>: AsyncSequence, AsyncIteratorProtocol {
     public typealias Element = Range<Int>
     
     public var source: Source
@@ -10,10 +10,14 @@ public struct FastCDCSequence<Source: FastCDCSource>: Sequence, IteratorProtocol
     public var avgBytes: Int
     public var maxBytes: Int
     
-    public mutating func next() -> Element? {
+    public func makeAsyncIterator() -> Self {
+        self
+    }
+    
+    public mutating func next() async throws -> Element? {
         guard index < source.count else { return nil }
         
-        switch source.fastCDCSplit(minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes, offset: index) {
+        switch try await source.fastCDCSplit(minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes, offset: index) {
         case .tooSmall:
             defer { index = source.count }
             return index ..< source.count

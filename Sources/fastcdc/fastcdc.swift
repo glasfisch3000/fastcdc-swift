@@ -7,7 +7,7 @@ public enum FastCDCSplitResult {
 }
 
 extension FastCDCSource {
-    public func fastCDCSplit(minBytes: Int, avgBytes: Int, maxBytes: Int, offset: Int = 0, seed: UInt = 0) -> FastCDCSplitResult {
+    public func fastCDCSplit(minBytes: Int, avgBytes: Int, maxBytes: Int, offset: Int = 0, seed: UInt = 0) async throws -> FastCDCSplitResult {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
@@ -17,7 +17,7 @@ extension FastCDCSource {
         var index = offset
         var bytes = 0
         
-        for element in self.makeSubsequence(from: offset) {
+        for try await element in self.makeSubsequence(from: offset) {
             defer { index += 1 }
             defer { bytes += element.byteCount }
             

@@ -10,7 +10,7 @@ extension UInt8: FastCDCElement {
 }
 
 extension Data: FastCDCSource {
-    public struct OffsetSequence: Sequence, IteratorProtocol {
+    public struct OffsetSequence: AsyncSequence, AsyncIteratorProtocol {
         public typealias Element = Data.Element
         
         public var data: Data
@@ -20,6 +20,10 @@ extension Data: FastCDCSource {
         init(data: Data, offset: Int) {
             self.data = data
             self.offset = offset
+        }
+        
+        public func makeAsyncIterator() -> Self {
+            self
         }
         
         public mutating func next() -> Element? {
@@ -51,5 +55,15 @@ extension Data: FastCDCElement {
 extension Array: FastCDCSource where Element: FastCDCElement {
     public func makeSubsequence(from offset: Int) -> Self.SubSequence {
         self[offset...]
+    }
+}
+
+extension IndexingIterator: AsyncIteratorProtocol {
+    
+}
+
+extension ArraySlice: AsyncSequence {
+    public func makeAsyncIterator() -> Iterator {
+        self.makeIterator()
     }
 }
