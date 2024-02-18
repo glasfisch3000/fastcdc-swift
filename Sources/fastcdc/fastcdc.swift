@@ -20,6 +20,9 @@ extension FastCDCSource {
         print("fastCDC \(self) from \(offset)")
         
         for element in self.makeSubsequence(from: offset) {
+            defer { index += 1 }
+            defer { bytes += element.byteCount }
+            
             guard bytes >= minBytes else { continue }
             guard bytes + element.byteCount <= maxBytes else { break }
             
@@ -28,9 +31,6 @@ extension FastCDCSource {
             element.fastCDCHash(&hash, mask: mask)
             print("  index \(index) bytes \(bytes) -> \(String(format: "%016x", hash)) & \(String(format: "%016x", mask)) \(hash & mask == 0 ? "==" : "!=") 0")
             if hash & mask == 0 { return .split(index+1) }
-            
-            index += 1
-            bytes += element.byteCount
         }
         
         return bytes >= minBytes ? .notFound(index, lastHash: hash) : .tooSmall
