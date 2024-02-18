@@ -1,16 +1,16 @@
 import Foundation
 
-struct FastCDCSequence<Source: FastCDCSource>: Sequence, IteratorProtocol {
-    typealias Element = Range<Int>
+public struct FastCDCSequence<Source: FastCDCSource>: Sequence, IteratorProtocol {
+    public typealias Element = Range<Int>
     
-    var source: Source
-    var index: Int = 0
+    public var source: Source
+    public var index: Int = 0
     
-    var minBytes: Int
-    var avgBytes: Int
-    var maxBytes: Int
+    public var minBytes: Int
+    public var avgBytes: Int
+    public var maxBytes: Int
     
-    mutating func next() -> Element? {
+    public mutating func next() -> Element? {
         guard index < source.count else { return nil }
         
         switch source.fastCDCSplit(minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes, offset: index) {
@@ -30,7 +30,7 @@ struct FastCDCSequence<Source: FastCDCSource>: Sequence, IteratorProtocol {
 }
 
 extension FastCDCSource {
-    public func fastCDCSequence(minBytes: Int, avgBytes: Int, maxBytes: Int) -> some Sequence<Range<Int>> {
+    public func fastCDCSequence(minBytes: Int, avgBytes: Int, maxBytes: Int) -> FastCDCSequence<Self> {
         FastCDCSequence(source: self, minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes)
     }
 }
