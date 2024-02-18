@@ -17,7 +17,7 @@ extension FastCDCSource {
         var index = offset
         var bytes = 0
         
-        print("fastCDC \(self)")
+        print("fastCDC \(self) from \(offset)")
         
         for element in self.makeSubsequence(from: offset) {
             guard bytes >= minBytes else { continue }
