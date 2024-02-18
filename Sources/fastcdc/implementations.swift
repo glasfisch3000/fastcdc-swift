@@ -10,34 +10,9 @@ extension UInt8: FastCDCElement {
 }
 
 extension Data: FastCDCSource {
-    public class OffsetSequence: Sequence, IteratorProtocol {
-        public typealias Element = Data.Element
-        
-        public var data: [UInt8]
-        public var offset: Int
-        public var index: Int = 0
-        
-        init(data: Data, offset: Int) {
-            self.data = data.map { $0 }
-            self.offset = offset
-        }
-        
-        public func next() -> Element? {
-            print("\(self).next()", terminator: "")
-            defer { print() }
-            
-            guard offset+index < data.count else { print(" -> end", terminator: ""); return nil }
-            
-            let value = data[offset+index]
-            index += 1
-            print(" -> \(value)", terminator: "")
-            return value
-        }
-    }
-    
-    public func makeSubsequence(from offset: Int) -> OffsetSequence {
+    public func makeSubsequence(from offset: Int) -> ArraySlice<UInt8> {
         print("Data.makeSubsequence(from: \(offset))")
-        return OffsetSequence(data: self, offset: offset)
+        return self.map { $0 }[offset...]
     }
 }
 
