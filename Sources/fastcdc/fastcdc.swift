@@ -1,28 +1,24 @@
 import Foundation
 
-public enum FastCDCSplitResult {
+public enum FastCDCBreakpointResult<Source: FastCDCSource> {
     case tooSmall
-    case split(_ breakpoint: Int)
-    case notFound(_ searchLength: Int, lastHash: UInt)
-}
-
-public enum FastCDCSubsequenceResult {
-    
+    case split(_ breakpoint: Source.Index)
+    case notFound(_ searchLength: Source.Index, lastHash: UInt)
 }
 
 extension FastCDCSource {
-    public func fastCDCSplit(minBytes: Int, avgBytes: Int, maxBytes: Int, offset: Int = 0, seed: UInt = 0) async throws -> FastCDCSplitResult {
+    public func fastCDCNextBreakpoint(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) async throws -> FastCDCBreakpointResult<Self> {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
         
         var hash: UInt = seed
         
-        var index = offset
+        var index = startIndex
         var bytes = 0
         
-        for try await element in self.makeSubsequence(from: offset) {
-            defer { index += 1 }
+        for try await element in self {
+            defer { index = self.index(after: index) }
             defer { bytes += element.byteCount }
             
             guard bytes >= minBytes else { continue }
@@ -31,25 +27,25 @@ extension FastCDCSource {
             let mask = bytes < avgBytes ? maskS : maskL
             
             element.fastCDCHash(&hash, mask: mask)
-            if hash & mask == 0 { return .split(index+1) }
+            if hash & mask == 0 { return .split(self.index(after: index)) }
         }
         
         return bytes >= minBytes ? .notFound(index, lastHash: hash) : .tooSmall
     }
     
-    public func fastCDCNextSubsequence(minBytes: Int, avgBytes: Int, maxBytes: Int, offset: Int = 0, seed: UInt = 0) async throws -> [Element] {
+    public func fastCDCNextList(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) async throws -> [Element] {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
         
         var hash: UInt = seed
         
-        var index = offset
+        var index = 0
         var bytes = 0
         
         var elements: [Element] = []
         
-        for try await element in self.makeSubsequence(from: offset) {
+        for try await element in self {
             defer { index += 1 }
             defer { bytes += element.byteCount }
             
@@ -68,18 +64,18 @@ extension FastCDCSource {
     }
 }
 
-extension FastCDCSource where Self: Collection, Index == Int {
-    public func fastCDCNextSubsequence(minBytes: Int, avgBytes: Int, maxBytes: Int, offset: Int = 0, seed: UInt = 0) async throws -> SubSequence {
+extension FastCDCSource where Index == Int {
+    public func fastCDCNextSlice(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) async throws -> SubSequence {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
         
         var hash: UInt = seed
         
-        var index = offset
+        var index = 0
         var bytes = 0
         
-        for try await element in self.makeSubsequence(from: offset) {
+        for try await element in self {
             defer { index += 1 }
             defer { bytes += element.byteCount }
             
@@ -89,9 +85,9 @@ extension FastCDCSource where Self: Collection, Index == Int {
             let mask = bytes < avgBytes ? maskS : maskL
             
             element.fastCDCHash(&hash, mask: mask)
-            if hash & mask == 0 { return self[offset ... offset + index] }
+            if hash & mask == 0 { break }
         }
         
-        return self[offset...]
+        return self[self.startIndex ..< self.startIndex + index]
     }
 }

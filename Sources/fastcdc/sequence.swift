@@ -1,41 +1,36 @@
 import Foundation
 
 extension FastCDCSource {
-    public func fastCDC(min: Int, avg: Int, max: Int) -> FastCDCSequence<Self> {
-        FastCDCSequence(source: self, minBytes: min, avgBytes: avg, maxBytes: max)
+    public func fastCDC(min: Int, avg: Int, max: Int) -> FastCDCView<Self> {
+        FastCDCView(source: self, minBytes: min, avgBytes: avg, maxBytes: max)
     }
 }
 
-public struct FastCDCSequence<Source>: AsyncSequence where Source: FastCDCSource {
-    public typealias Element = Range<Int>
-    
+public struct FastCDCView<Source> where Source: FastCDCSource {
     public var source: Source
-    
     public var minBytes: Int
     public var avgBytes: Int
     public var maxBytes: Int
-    
-    public func makeAsyncIterator() -> AsyncIterator {
-        AsyncIterator(source: source, minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes)
-    }
 }
 
-extension FastCDCSequence {
-    public struct AsyncIterator: AsyncIteratorProtocol {
-        public var source: Source
-        public var index: Int = 0
+extension FastCDCView {
+    public struct Breakpoints: AsyncSequence, AsyncIteratorProtocol {
+        public typealias Element = Range<Source.Index>
         
-        public var minBytes: Int
-        public var avgBytes: Int
-        public var maxBytes: Int
+        public var view: FastCDCView
+        public var index: Source.Index
+        
+        public func makeAsyncIterator() -> Self {
+            self
+        }
         
         public mutating func next() async throws -> Element? {
-            guard index < source.count else { return nil }
+            guard index < view.source.endIndex else { return nil }
             
-            switch try await source.fastCDCSplit(minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes, offset: index) {
+            switch try await view.source[index...].fastCDCNextBreakpoint(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes) {
             case .tooSmall:
-                defer { index = source.count }
-                return index ..< source.count
+                defer { index = view.source.endIndex }
+                return index ..< view.source.endIndex
                 
             case .split(let breakpoint):
                 defer { index = breakpoint }
@@ -47,37 +42,50 @@ extension FastCDCSequence {
             }
         }
     }
+    
+    public var breakpoints: Breakpoints { Breakpoints(view: self, index: source.startIndex) }
 }
 
-extension FastCDCSequence {
+extension FastCDCView where Source.Index == Int {
     public struct Lists: AsyncSequence, AsyncIteratorProtocol {
         public typealias Element = [Source.Element]
         
-        public var source: Source
-        public var index: Int = 0
-        
-        public var minBytes: Int
-        public var avgBytes: Int
-        public var maxBytes: Int
+        public var view: FastCDCView
+        public var index: Source.Index
         
         public func makeAsyncIterator() -> Self {
             self
         }
         
         public mutating func next() async throws -> Element? {
-            guard index < source.count else { return nil }
+            guard index < view.source.endIndex else { return nil }
             
-            let subset = try await source.fastCDCNextSubsequence(minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes, offset: index)
+            let subset = try await view.source[index...].fastCDCNextList(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
             index += subset.count
             return subset
         }
     }
     
-    public var sequences: Lists { Lists(source: source, minBytes: minBytes, avgBytes: avgBytes, maxBytes: maxBytes) }
+    public var sequences: Lists { Lists(view: self, index: source.startIndex) }
 }
 
-extension FastCDCSequence where Source: Collection, Source.Index == Int {
-    public var slices: AsyncMapSequence<Self, Source.SubSequence> {
-        self.map { self.source[$0] }
+extension FastCDCView where Source.Index == Int, Source.OffsetSequence.SubSequence == Source.SubSequence {
+    public struct Slices: AsyncSequence, AsyncIteratorProtocol {
+        public typealias Element = Source.SubSequence
+        
+        public var view: FastCDCView
+        public var index: Source.Index
+        
+        public func makeAsyncIterator() -> Self {
+            self
+        }
+        
+        public mutating func next() async throws -> Element? {
+            guard index < view.source.endIndex else { return nil }
+            
+            let subset = try await view.source[index...].fastCDCNextSlice(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
+            index += subset.count
+            return subset
+        }
     }
 }

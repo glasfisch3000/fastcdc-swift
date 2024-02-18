@@ -1,12 +1,18 @@
 import Foundation
 
-public protocol FastCDCSource {
-    associatedtype OffsetSequence: AsyncSequence where OffsetSequence.Element == Element
-    associatedtype Element: FastCDCElement
+public protocol FastCDCSource: AsyncSequence where Element: FastCDCElement {
+    associatedtype Index: Comparable
+    associatedtype OffsetSequence: FastCDCSource where OffsetSequence.Element == Element, OffsetSequence.Index == Index
+    associatedtype SubSequence: FastCDCSource where SubSequence.Element == Element, SubSequence.Index == Index
     
     var count: Int { get }
     
-    func makeSubsequence(from offset: Int) -> OffsetSequence
+    subscript(indices: PartialRangeFrom<Index>) -> OffsetSequence { get }
+    subscript(indices: Range<Index>) -> SubSequence { get }
+    
+    var startIndex: Index { get }
+    var endIndex: Index { get }
+    func index(after index: Index) -> Index
 }
 
 public protocol FastCDCElement {
