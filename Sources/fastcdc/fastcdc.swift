@@ -22,6 +22,9 @@ extension FastCDCSource {
         let subsequence = self.makeSubsequence(from: offset)
         var iterator = subsequence.makeIterator()
         
+        print(subsequence)
+        print(iterator)
+        
         while let element = iterator.next() {
             print("  index \(index) bytes \(bytes)", terminator: "")
             defer { print() }
