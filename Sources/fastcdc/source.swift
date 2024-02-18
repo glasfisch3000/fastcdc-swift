@@ -14,7 +14,7 @@ public protocol FastCDCSource: AsyncSequence where Element: FastCDCElement {
     var endIndex: Index { get }
     func index(after index: Index) -> Index
     
-    func load(to index: Index) async
+    mutating func load(to index: Index) async
 }
 
 public protocol FastCDCElement {
