@@ -17,16 +17,7 @@ extension FastCDCSource {
         var index = offset
         var bytes = 0
         
-        print("fastCDC \(self) from \(offset)")
-        
-        let subsequence = self.makeSubsequence(from: offset)
-        var iterator = subsequence.makeIterator()
-        
-        print(subsequence)
-        print(iterator)
-        
-        while let element = iterator.next() {
-            print("  index \(index) bytes \(bytes)", terminator: "")
+        for element in self.makeSubsequence(from: offset) {
             defer { print() }
             defer { index += 1 }
             defer { bytes += element.byteCount }
@@ -37,7 +28,6 @@ extension FastCDCSource {
             let mask = bytes < avgBytes ? maskS : maskL
             
             element.fastCDCHash(&hash, mask: mask)
-            print(" -> index \(index) bytes \(bytes) -> \(String(format: "%016x", hash)) & \(String(format: "%016x", mask)) \(hash & mask == 0 ? "==" : "!=") 0", terminator: "")
             if hash & mask == 0 { return .split(index+1) }
         }
         
