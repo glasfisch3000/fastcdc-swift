@@ -18,11 +18,12 @@ extension FastCDCSource {
         var bytes = 0
         
         for element in self {
+            guard bytes + element.byteCount <= maxBytes else { break }
+            
             defer { index = self.index(after: index) }
             defer { bytes += element.byteCount }
             
             guard bytes >= minBytes else { continue }
-            guard bytes + element.byteCount < maxBytes else { break }
             
             let mask = bytes < avgBytes ? maskS : maskL
             
@@ -46,11 +47,12 @@ extension FastCDCSource {
         var elements: [Element] = []
         
         for element in self {
+            guard bytes + element.byteCount <= maxBytes else { break }
+            
             defer { index += 1 }
             defer { bytes += element.byteCount }
             
             guard bytes >= minBytes else { continue }
-            guard bytes + element.byteCount < maxBytes else { break }
             
             let mask = bytes < avgBytes ? maskS : maskL
             
@@ -76,11 +78,12 @@ extension FastCDCSource where Index == Int {
         var bytes = 0
         
         for element in self {
+            guard bytes + element.byteCount <= maxBytes else { break }
+            
             defer { index += 1 }
             defer { bytes += element.byteCount }
             
             guard bytes >= minBytes else { continue }
-            guard bytes + element.byteCount < maxBytes else { break }
             
             let mask = bytes < avgBytes ? maskS : maskL
             
