@@ -7,7 +7,7 @@ public enum FastCDCBreakpointResult<Source: FastCDCSource> {
 }
 
 extension FastCDCSource {
-    public func fastCDCNextBreakpoint(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) async throws -> FastCDCBreakpointResult<Self> {
+    public func fastCDCNextBreakpoint(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) -> FastCDCBreakpointResult<Self> {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
@@ -17,7 +17,7 @@ extension FastCDCSource {
         var index = startIndex
         var bytes = 0
         
-        for try await element in self {
+        for element in self {
             defer { index = self.index(after: index) }
             defer { bytes += element.byteCount }
             
@@ -33,7 +33,7 @@ extension FastCDCSource {
         return bytes >= minBytes ? .notFound(index, lastHash: hash) : .tooSmall
     }
     
-    public func fastCDCNextList(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) async throws -> [Element] {
+    public func fastCDCNextList(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) -> [Element] {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
@@ -45,7 +45,7 @@ extension FastCDCSource {
         
         var elements: [Element] = []
         
-        for try await element in self {
+        for element in self {
             defer { index += 1 }
             defer { bytes += element.byteCount }
             
@@ -65,7 +65,7 @@ extension FastCDCSource {
 }
 
 extension FastCDCSource where Index == Int {
-    public func fastCDCNextSlice(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) async throws -> SubSequence {
+    public func fastCDCNextSlice(minBytes: Int, avgBytes: Int, maxBytes: Int, seed: UInt = 0) -> SubSequence {
         let log = UInt(avgBytes.bitWidth - avgBytes.leadingZeroBitCount)
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
@@ -75,7 +75,7 @@ extension FastCDCSource where Index == Int {
         var index = 0
         var bytes = 0
         
-        for try await element in self {
+        for element in self {
             defer { index += 1 }
             defer { bytes += element.byteCount }
             

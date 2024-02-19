@@ -11,14 +11,7 @@ extension UInt8: FastCDCElement {
 
 extension Data: FastCDCSource {
     public typealias OffsetSequence = SubSequence
-    public typealias AsyncIterator = Iterator
-    
-    public func makeAsyncIterator() -> Iterator {
-        self.makeIterator()
-    }
 }
-
-extension Data.Iterator: AsyncIteratorProtocol { }
 
 extension Data: FastCDCElement {
     public var byteCount: Int { self.count }
@@ -33,23 +26,13 @@ extension Data: FastCDCElement {
     }
 }
 
-extension Array: FastCDCSource, AsyncSequence where Element: FastCDCElement {
+extension Array: FastCDCSource where Element: FastCDCElement {
     public typealias OffsetSequence = SubSequence
-    
-    public func makeAsyncIterator() -> Iterator {
-        self.makeIterator()
-    }
 }
 
-extension ArraySlice: FastCDCSource, AsyncSequence where Element: FastCDCElement {
+extension ArraySlice: FastCDCSource where Element: FastCDCElement {
     public typealias OffsetSequence = SubSequence
-    
-    public func makeAsyncIterator() -> Iterator {
-        self.makeIterator()
-    }
 }
-
-extension IndexingIterator: AsyncIteratorProtocol where Elements: FastCDCSource { }
 
 extension Array: FastCDCElement where Element == UInt8 {
     public var byteCount: Int { self.count }

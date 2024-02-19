@@ -25,10 +25,10 @@ extension FastCDCView {
         }
         
         public mutating func next() async throws -> Element? {
-            await view.source.load(to: index)
+            await view.source.load(from: index, bytes: view.maxBytes)
             guard index < view.source.endIndex else { return nil }
             
-            switch try await view.source[index...].fastCDCNextBreakpoint(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes) {
+            switch view.source[index...].fastCDCNextBreakpoint(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes) {
             case .tooSmall:
                 defer { index = view.source.endIndex }
                 return index ..< view.source.endIndex
@@ -59,10 +59,10 @@ extension FastCDCView where Source.Index == Int {
         }
         
         public mutating func next() async throws -> Element? {
-            await view.source.load(to: index)
+            await view.source.load(from: index, bytes: view.maxBytes)
             guard index < view.source.endIndex else { return nil }
             
-            let subset = try await view.source[index...].fastCDCNextList(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
+            let subset = view.source[index...].fastCDCNextList(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
             index += subset.count
             return subset
         }
@@ -83,10 +83,10 @@ extension FastCDCView where Source.Index == Int, Source.OffsetSequence.SubSequen
         }
         
         public mutating func next() async throws -> Element? {
-            await view.source.load(to: index)
+            await view.source.load(from: index, bytes: view.maxBytes)
             guard index < view.source.endIndex else { return nil }
             
-            let subset = try await view.source[index...].fastCDCNextSlice(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
+            let subset = view.source[index...].fastCDCNextSlice(minBytes: view.minBytes, avgBytes: view.avgBytes, maxBytes: view.maxBytes)
             index += subset.count
             return subset
         }
