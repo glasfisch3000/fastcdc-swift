@@ -9,14 +9,12 @@ let package = Package(
         .macOS(.v10_15)
     ],
     products: [
-        .library(
-            name: "FastCDC",
-            targets: ["FastCDC"]
-        ),
+        .library(name: "fastcdc", targets: ["FastCDC"]),
     ],
     targets: [
         .target(
-            name: "FastCDC"
+            name: "FastCDC",
+            path: "./Sources/fastcdc"
         )
     ]
 )
