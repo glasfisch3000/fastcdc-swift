@@ -11,3 +11,15 @@ public protocol AsyncChunkableSequence {
     
     func chunk(info: CDCInfo) -> Chunked
 }
+
+extension ChunkableSequence {
+    func chunk(min: Int, avg: Int, max: Int) -> Chunked {
+        self.chunk(info: .init(min: min, avg: avg, max: max))
+    }
+}
+
+extension AsyncChunkableSequence {
+    func chunk(min: Int, avg: Int, max: Int) -> Chunked {
+        self.chunk(info: .init(min: min, avg: avg, max: max))
+    }
+}
