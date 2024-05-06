@@ -27,25 +27,21 @@ extension Data.Chunked {
         let maskS: UInt = (1 << (log-2)) - 1
         let maskL: UInt = (1 << (log+2)) - 1
         
-        var byteCount = 1
+        var byteCount = 0
         var hash = self.seed
         
         let status = source.withUnsafeBytes { bytes -> CDCBreakpointType in
             for index in self.index ..< endIndex {
+                byteCount += 1
                 guard byteCount < info.maxBytes else { return .tooLarge }
                 
                 let mask = byteCount < info.avgBytes ? maskS : maskL
                 hash <<= 1
                 (hash, _) = hash.addingReportingOverflow(table[Int(bytes[index])])
                 
-                guard byteCount >= info.minBytes else {
-                    byteCount += 1
-                    continue
-                }
+                guard byteCount >= info.minBytes else { continue }
                 
                 if hash & mask == 0 { return .split }
-                
-                byteCount += 1
             }
             
             return byteCount >= info.minBytes ? .notFound : .tooSmall
