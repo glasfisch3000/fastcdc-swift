@@ -32,7 +32,7 @@ extension Data.Chunked {
         
         let status = source.withUnsafeBytes { bytes -> CDCBreakpointType in
             for index in self.index ..< endIndex {
-                guard byteCount <= info.maxBytes else { return .tooLarge }
+                guard byteCount < info.maxBytes else { return .tooLarge }
                 
                 let mask = byteCount < info.avgBytes ? maskS : maskL
                 hash <<= 1
