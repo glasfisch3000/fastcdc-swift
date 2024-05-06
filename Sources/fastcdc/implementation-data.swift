@@ -28,16 +28,11 @@ extension Data.Chunked {
         let maskL: UInt = (1 << (log+2)) - 1
         
         var index = self.index
-        var byteCount = 0
+        var byteCount = 1
         var hash = self.seed
         
         let status = source.withUnsafeBytes { bytes -> CDCBreakpointType in
             while index < endIndex {
-                defer {
-                    index += 1
-                    byteCount += 1
-                }
-                
                 guard byteCount <= info.maxBytes else { return .tooLarge }
                 
                 let mask = byteCount < info.avgBytes ? maskS : maskL
@@ -46,12 +41,15 @@ extension Data.Chunked {
                 
                 guard byteCount >= info.minBytes else { continue }
                 if hash & mask == 0 { return .split }
+                
+                index += 1
+                byteCount += 1
             }
             
             return byteCount >= info.minBytes ? .notFound : .tooSmall
         }
         
-        let subdata = self.source[self.index ..< index]
+        let subdata = self.source[self.index ... index]
         
         self.index = index
         self.seed = hash
