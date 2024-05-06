@@ -51,7 +51,7 @@ extension Data.Chunked {
             return byteCount >= info.minBytes ? .notFound : .tooSmall
         }
         
-        let subdata = self.source[self.index ... self.index+byteCount]
+        let subdata = self.source[self.index ..< self.index+byteCount]
         
         self.index += byteCount
         self.seed = hash
