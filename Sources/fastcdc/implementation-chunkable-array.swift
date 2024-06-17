@@ -18,8 +18,8 @@ extension [Data]: ChunkableSequence {
             guard index < endIndex else { return nil }
             
             let log = UInt(self.info.avgBytes.bitWidth - self.info.avgBytes.leadingZeroBitCount)
-            let maskS: UInt = (1 << (log-1-2)) - 1
-            let maskL: UInt = (1 << (log-1+2)) - 1
+            let maskS: UInt = (1 << (log+2)) - 1
+            let maskL: UInt = (1 << (log-2)) - 1
             
             var index = self.index
             var byteCount = 0
