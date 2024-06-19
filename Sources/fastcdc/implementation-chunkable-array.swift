@@ -28,18 +28,19 @@ extension [Data]: ChunkableSequence {
             var resultStatus: CDCBreakpointType = .tooSmall
             
             loop: while index < endIndex {
-                defer { index += 1 }
                 let data = source[index]
+                
+                guard byteCount + data.count < info.maxBytes else {
+                    resultStatus = .tooLarge
+                    break
+                }
+                defer { index += 1 }
                 
                 let status = data.withUnsafeBytes { bytes -> CDCBreakpointType in
                     var offset = 0
                     while offset < bytes.endIndex {
-                        defer {
-                            byteCount += 1
-                            offset += 1
-                        }
-                        
-                        guard byteCount <= info.maxBytes else { return .tooLarge }
+                        byteCount += 1
+                        defer { offset += 1 }
                         
                         let mask = byteCount < info.avgBytes ? maskS : maskL
                         hash <<= 1
