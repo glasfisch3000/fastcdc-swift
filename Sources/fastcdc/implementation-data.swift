@@ -37,7 +37,7 @@ extension Data.Chunked {
                 
                 let mask = byteCount < info.avgBytes ? maskS : maskL
                 hash <<= 1
-                (hash, _) = hash.addingReportingOverflow(table[Int(bytes[index])])
+                hash &+= table[Int(bytes[index])]
                 
                 guard byteCount >= info.minBytes else { continue }
                 

@@ -44,7 +44,7 @@ extension [Data]: ChunkableSequence {
                         
                         let mask = byteCount < info.avgBytes ? maskS : maskL
                         hash <<= 1
-                        (hash, _) = hash.addingReportingOverflow(table[Int(bytes[offset])])
+                        hash &+= table[Int(bytes[offset])]
                         
                         guard byteCount >= info.minBytes else { continue }
                         if hash & mask == 0 { return .split }
